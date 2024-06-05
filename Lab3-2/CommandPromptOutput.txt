@@ -1,0 +1,151 @@
+Server [localhost]:
+Database [postgres]:
+Port [3300]:
+Username [postgres]:
+Пароль користувача postgres:
+
+psql (16.1)
+Введіть "help", щоб отримати допомогу.
+
+postgres=# CREATE DATABASE Library;
+CREATE DATABASE
+postgres=# \l
+                                                                        Список баз даних
+   Назва   | Власник  | Кодування | Постачальник локалі |   Порядок сортування   |         Ctype          | Локалізація ICU | ICU Rules |     Права доступу
+-----------+----------+-----------+---------------------+------------------------+------------------------+-----------------+-----------+-----------------------
+ library   | postgres | UTF8      | libc                | Ukrainian_Ukraine.1251 | Ukrainian_Ukraine.1251 |                 |           |
+ postgres  | postgres | UTF8      | libc                | Ukrainian_Ukraine.1251 | Ukrainian_Ukraine.1251 |                 |           |
+ template0 | postgres | UTF8      | libc                | Ukrainian_Ukraine.1251 | Ukrainian_Ukraine.1251 |                 |           | =c/postgres          +
+           |          |           |                     |                        |                        |                 |           | postgres=CTc/postgres
+ template1 | postgres | UTF8      | libc                | Ukrainian_Ukraine.1251 | Ukrainian_Ukraine.1251 |                 |           | =c/postgres          +
+           |          |           |                     |                        |                        |                 |           | postgres=CTc/postgres
+(4 рядки)
+
+
+postgres=# \c library
+Ви тепер під'єднані до бази даних "library" як користувач "postgres".
+library=# CREATE TABLE authors (
+library(#     author_id SERIAL PRIMARY KEY,
+library(#     author_name VARCHAR
+library(# );
+CREATE TABLE
+library=# CREATE TABLE users (
+library(#     user_id SERIAL PRIMARY KEY,
+library(#     username VARCHAR,
+library(#     password VARCHAR,
+library(#     name VARCHAR,
+library(#     contact_info VARCHAR
+library(# );
+CREATE TABLE
+library=# CREATE TABLE books (
+library(#     book_id SERIAL PRIMARY KEY,
+library(#     title VARCHAR,
+library(#     author_id INT REFERENCES authors(author_id),
+library(#     genre VARCHAR,
+library(#     rating FLOAT,
+library(#     year_published INT
+library(# );
+CREATE TABLE
+library=# CREATE TABLE loans (
+library(#     loan_id SERIAL PRIMARY KEY,
+library(#     book_id INT REFERENCES books(book_id),
+library(#     user_id INT REFERENCES users(user_id),
+library(#     date_issued DATE,
+library(#     date_due DATE,
+library(#     date_returned DATE
+library(# );
+CREATE TABLE
+library=# CREATE TABLE copies (
+library(#     copy_id SERIAL PRIMARY KEY,
+library(#     book_id INT REFERENCES books(book_id),
+library(#     availability VARCHAR
+library(# );
+CREATE TABLE
+library=# ALTER TABLE books
+library-# ADD CONSTRAINT fk_books_authors
+library-# FOREIGN KEY (author_id)
+library-# REFERENCES authors(author_id);
+ALTER TABLE
+library=# ALTER TABLE loans
+library-# ADD CONSTRAINT fk_loans_books
+library-# FOREIGN KEY (book_id)
+library-# REFERENCES books(book_id);
+ALTER TABLE
+library=# ALTER TABLE loans
+library-# ADD CONSTRAINT fk_loans_users
+library-# FOREIGN KEY (user_id)
+library-# REFERENCES users(user_id);
+ALTER TABLE
+library=# ALTER TABLE copies
+library-# ADD CONSTRAINT fk_copies_books
+library-# FOREIGN KEY (book_id)
+library-# REFERENCES books(book_id);
+ALTER TABLE
+library=# INSERT INTO authors (author_id, author_name) VALUES
+library-# (1, 'Джордж Оруелл'),
+library-# (2, 'Джейн Остін'),
+library-# (3, 'Філіп К. Дік'),
+library-# (4, 'Дж. Р. Р. Толкін'),
+library-# (5, 'Вільям Шекспір');
+INSERT 0 5
+library=# INSERT INTO books (book_id, title, author_id, genre, rating, year_published) VALUES
+library-# (1, '1984', 1, 'Дистопія', 4.5, 1949),
+library-# (2, 'Поневіра (Стародавній Рим)', 2, 'Роман', 4.8, 1813),
+library-# (3, 'Мертві душі', 3, 'Роман', 4.2, 1842),
+library-# (4, 'Володар перснів', 4, 'Фентезі', 4.9, 1954),
+library-# (5, 'Ромео і Джульєтта', 5, 'Трагедія', 4.7, 1597);
+INSERT 0 5
+library=# INSERT INTO users (user_id, username, password, name, contact_info) VALUES
+library-# (1, 'user1', 'pass1', 'Іван Петров', 'ivan@example.com'),
+library-# (2, 'user2', 'pass2', 'Олена Іванова', 'olena@example.com'),
+library-# (3, 'user3', 'pass3', 'Петро Сидоров', 'petro@example.com'),
+library-# (4, 'admin', 'adminpass', 'Адміністратор', 'admin@example.com');
+INSERT 0 4
+library=# INSERT INTO copies (copy_id, book_id, availability) VALUES
+library-# (1, 1, 'доступний'),
+library-# (2, 1, 'доступний'),
+library-# (3, 2, 'доступний'),
+library-# (4, 3, 'вибрано'),
+library-# (5, 4, 'доступний');
+INSERT 0 5
+library=# INSERT INTO loans (loan_id, book_id, user_id, date_issued, date_due, date_returned) VALUES
+library-# (1, 1, 1, '2024-04-01', '2024-04-15', NULL),
+library-# (2, 2, 2, '2024-04-05', '2024-04-19', NULL),
+library-# (3, 3, 3, '2024-04-10', '2024-04-24', NULL);
+INSERT 0 3
+library=# SELECT * FROM books;
+ book_id |           title            | author_id |  genre   | rating | year_published
+---------+----------------------------+-----------+----------+--------+----------------
+       1 | 1984                       |         1 | Дистопія |    4.5 |           1949
+       2 | Поневіра (Стародавній Рим) |         2 | Роман    |    4.8 |           1813
+       3 | Мертві душі                |         3 | Роман    |    4.2 |           1842
+       4 | Володар перснів            |         4 | Фентезі  |    4.9 |           1954
+       5 | Ромео і Джульєтта          |         5 | Трагедія |    4.7 |           1597
+(5 рядків)
+
+
+library=# CREATE USER librarian WITH PASSWORD 'librarianpass';
+CREATE ROLE
+library=# GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO librarian;
+GRANT
+library=# CREATE USER member WITH PASSWORD 'memberpass';
+CREATE ROLE
+library=# GRANT SELECT, INSERT, UPDATE ON books, loans, copies TO member;
+GRANT
+library=# CREATE USER guest WITH PASSWORD 'guestpass';
+CREATE ROLE
+library=# GRANT SELECT ON books, copies TO guest;
+GRANT
+library=# \dt
+           Список відношень
+ Схема  |  Назва  |   Тип   | Власник
+--------+---------+---------+----------
+ public | authors | таблиця | postgres
+ public | books   | таблиця | postgres
+ public | copies  | таблиця | postgres
+ public | loans   | таблиця | postgres
+ public | users   | таблиця | postgres
+(5 рядків)
+
+
+library=#

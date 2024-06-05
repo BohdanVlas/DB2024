@@ -1,0 +1,54 @@
+db.genres.find()
+
+db.authors.find()
+
+db.users.find()
+
+db.books.find()
+
+db.copies.find()
+
+db.loans.find()
+
+db.books.find({ rating: { $gt: 4.5 } })
+
+db.books.find({ year_published: { $gte: 1901, $lte: 2000 } })
+
+db.books.find({ year_published: { $lt: 1800 } })
+
+db.users.find({ contact_info: /@example\.com$/ })
+
+db.books.find({ genre_id: 2 })
+
+db.books.find({ title: "1984" })
+
+db.copies.find({ availability: "доступний" })
+
+db.copies.find({ availability: "вибрано" })
+
+db.copies.find({ availability: { $ne: "вибрано" } })
+
+db.books.aggregate([
+  { $group: { _id: "$author_id", count: { $sum: 1 } } }
+])
+
+db.books.aggregate([
+  { $group: { _id: "$genre_id", avgRating: { $avg: "$rating" } } }
+])
+
+db.copies.aggregate([
+  { $group: { _id: "$book_id", count: { $sum: 1 } } }
+])
+
+db.books.aggregate([
+  { $group: { _id: "$genre_id", count: { $sum: 1 } } }
+])
+
+db.loans.aggregate([
+  { $match: { date_returned: null } },
+  { $lookup: { from: "books", localField: "book_id", foreignField: "_id", as: "book" } },
+  { $unwind: "$book" },
+  { $lookup: { from: "users", localField: "user_id", foreignField: "_id", as: "user" } },
+  { $unwind: "$user" },
+  { $group: { _id: "$user.name", count: { $sum: 1 } } }
+])
